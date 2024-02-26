@@ -1,3 +1,5 @@
+const path = require("path");
+
 const express = require("express");
 const dotenv = require("dotenv").config();
 const colors = require("colors");
@@ -15,12 +17,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(errorHandler);
 app.get("/", (req, res) => {
-  res.status(201).json({ hi: "Hi my name is Tanuj" });
+  res.status(201).json({ message: "Welcome to the Support Desk API" });
 });
 
 //Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/tickets", require("./routes/ticketRoutes"));
+
+//Server Frontend
+if (process.env.NODE_ENV === "production") {
+  // Set build folder as static
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(__dirname, "../", "frontend", "build", "index.html")
+  );
+} else {
+  app.get("/", (req, res) => {
+    res.status(201).json({ message: "Welcome to the Support Desk API" });
+  });
+}
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
